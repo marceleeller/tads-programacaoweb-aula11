@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Editar Usuário</h1>
+        <form id="formEdicao">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="senha" name="senha" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </form>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://127.0.0.1:5000';
+
+        // Obter o ID do usuário da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        // Função para buscar os dados do usuário
+        async function carregarDadosUsuario() {
+            try {
+                const response = await axios.get(`${apiBaseUrl}/usuarios/${userId}`);
+                const usuario = response.data;
+
+                // Preencher os campos do formulário com os dados do usuário
+                document.getElementById('nome').value = usuario.nome;
+                document.getElementById('email').value = usuario.email;
+            } catch (error) {
+                console.error('Erro ao carregar os dados do usuário:', error);
+                alert('Erro ao carregar os dados do usuário. Tente novamente.');
+            }
+        }
+
+        // Capturar o evento de envio do formulário
+        document.getElementById('formEdicao').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            // Obter os valores dos campos
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            try {
+                // Fazer a requisição PUT para o backend
+                await axios.put(`${apiBaseUrl}/usuarios/${userId}`, {
+                    nome,
+                    email,
+                    senha
+                });
+
+                // Exibir mensagem de sucesso
+                alert('Usuário atualizado com sucesso!');
+                // Redirecionar para a página inicial
+                window.location.href = './index.html';
+            } catch (error) {
+                console.error('Erro ao atualizar usuário:', error);
+                alert('Erro ao atualizar usuário. Verifique os dados e tente novamente.');
+            }
+        });
+
+        // Carregar os dados do usuário ao carregar a página
+        carregarDadosUsuario();
+    </script>
+</body>
+</html>

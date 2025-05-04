@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lista de Usuários</h1>
+        <a href="./create.html" class="btn btn-primary mb-3">Cadastrar Novo Usuário</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaUsuarios">
+                <!-- Os dados serão preenchidos dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://127.0.0.1:5000';
+
+        // Função para listar usuários
+        async function listarUsuarios() {
+            try {
+                const response = await axios.get(`${apiBaseUrl}/usuarios`);
+                const usuarios = response.data;
+
+                const tabela = document.getElementById('tabelaUsuarios');
+                tabela.innerHTML = ''; // Limpa a tabela antes de adicionar os dados
+
+                usuarios.forEach(usuario => {
+                    const row = `
+                        <tr>
+                            <td>${usuario.id}</td>
+                            <td>${usuario.nome}</td>
+                            <td>${usuario.email}</td>
+                            <td>
+                                <a href="./update.html?id=${usuario.id}" class="btn btn-warning btn-sm">Editar</a>
+                                <button class="btn btn-danger btn-sm" onclick="excluirUsuario(${usuario.id})">Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                    tabela.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Erro ao listar usuários:', error);
+                alert('Erro ao listar usuários. Verifique se a API está rodando.');
+            }
+        }
+
+        // Função para excluir um usuário
+        async function excluirUsuario(id) {
+            if (confirm('Tem certeza que deseja excluir este usuário?')) {
+                try {
+                    const response = await axios.delete(`${apiBaseUrl}/delete/${id}`);
+                    alert(response.data.message);
+                    // Atualizar a lista de usuários
+                    listarUsuarios();
+                } catch (error) {
+                    console.error('Erro ao excluir usuário:', error);
+                    alert('Erro ao excluir usuário. Tente novamente.');
+                }
+            }
+        }
+
+        // Carregar a lista de usuários ao carregar a página
+        listarUsuarios();
+    </script>
+</body>
+</html>
